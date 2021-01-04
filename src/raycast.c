@@ -37,12 +37,27 @@ bool writePNGFile(const char* filename, Color* pixels, int width, int heigth) {
     png_set_packing(png);
     png_bytepp rows = (png_bytepp)png_malloc(png, sizeof(png_bytep) * heigth);
     for (int i = 0; i < heigth; i++) {
-        // rows[i] = (png_bytep)(  pixels + (heigth - i) * width * 3);
         png_bytep row = (png_bytep)png_malloc(png, sizeof(png_byte) * width * 3);
         for (int j = 0; j < width; j++) {
             int dx = j - width / 2;
             int dy = i - heigth / 2;
-            if (dx*dx + dy*dy < heigth*heigth / 6) {
+            if (dy*dy < heigth / 100) {
+                row[j * 3]     = 0;
+                row[j * 3 + 1] = 0;
+                row[j * 3 + 2] = 0;
+            } else if (dx*dx < heigth / 100) {
+                row[j * 3]     = 0;
+                row[j * 3 + 1] = 0;
+                row[j * 3 + 2] = 0;
+            } else if (abs(dx*dx + dy*dy - heigth*heigth / 16) <= heigth*heigth / 100) {
+                row[j * 3]     = 255;
+                row[j * 3 + 1] = 0;
+                row[j * 3 + 2] = 0;
+            } else if (dx*dx + dy*dy < heigth*heigth / 16) {
+                row[j * 3]     = 0;
+                row[j * 3 + 1] = 255;
+                row[j * 3 + 2] = 255;
+            } else if (dx*dx + dy*dy < heigth*heigth / 6) {
                 row[j * 3]     = (i + width - j) * 10 % 255;
                 row[j * 3 + 1] = 255;
                 row[j * 3 + 2] = (i + j) * 10 % 255;
