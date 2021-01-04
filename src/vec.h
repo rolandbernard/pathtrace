@@ -22,6 +22,10 @@ float dotVec3(Vec3 u, Vec3 v);
 
 Vec3 crossVec3(Vec3 u, Vec3 v);
 
+float magnitudeVec3(Vec3 v);
+
+Vec3 normalizeVec3(Vec3 v);
+
 typedef struct {
     float v[3][3];
 } Mat3x3;

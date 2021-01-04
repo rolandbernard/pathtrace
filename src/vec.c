@@ -28,6 +28,18 @@ Vec3 crossVec3(Vec3 u, Vec3 v) {
     );
 }
 
+float magnitudeVec3(Vec3 v) {
+    float sum = 0;
+    for (int k = 0; k < 3; k++) {
+        sum += v.v[k] * v.v[k];
+    }
+    return sqrtf(sum);
+}
+
+Vec3 normalizeVec3(Vec3 v) {
+    return scaleVec3(v, 1 / magnitudeVec3(v));
+}
+
 Mat3x3 createNullMat3x3() {
     Mat3x3 ret = { .v = {
         { 0, 0, 0, },
