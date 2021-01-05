@@ -23,4 +23,6 @@ void renderScene(Renderer renderer, Scene scene);
 
 void scaleBuffer(Renderer renderer, float scale);
 
+void clearBuffer(Renderer renderer);
+
 #endif

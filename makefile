@@ -6,10 +6,10 @@ SDIR=./src
 
 CC=clang
 LINK=clang
-DFLAGS=-g -O0 -fsanitize=address,leak,undefined
+DFLAGS=-g -Og
 RFLAGS=-O3
 CFLAGS=-I$(IDIR) -I$(IDIR)/regex/src -Wall $(DFLAGS) -flto=thin
-LIBS=-lpng -lz
+LIBS=-lpng -lz -lm
 
 _SRC=$(wildcard $(SDIR)/*.c) $(wildcard $(SDIR)/*/*.c)
 OBJ=$(patsubst $(SDIR)/%.c,$(ODIR)/%.o,$(_SRC))

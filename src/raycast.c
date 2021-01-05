@@ -8,6 +8,7 @@
 #include <png.h>
 
 #include "scene.h"
+#include "renderer.h"
 
 bool writePNGFile(const char* filename, Color* pixels, int width, int heigth) {
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -39,32 +40,9 @@ bool writePNGFile(const char* filename, Color* pixels, int width, int heigth) {
     for (int i = 0; i < heigth; i++) {
         png_bytep row = (png_bytep)png_malloc(png, sizeof(png_byte) * width * 3);
         for (int j = 0; j < width; j++) {
-            int dx = j - width / 2;
-            int dy = i - heigth / 2;
-            if (dy*dy < heigth / 100) {
-                row[j * 3]     = 0;
-                row[j * 3 + 1] = 0;
-                row[j * 3 + 2] = 0;
-            } else if (dx*dx < heigth / 100) {
-                row[j * 3]     = 0;
-                row[j * 3 + 1] = 0;
-                row[j * 3 + 2] = 0;
-            } else if (abs(dx*dx + dy*dy - heigth*heigth / 16) <= heigth*heigth / 100) {
-                row[j * 3]     = 255;
-                row[j * 3 + 1] = 0;
-                row[j * 3 + 2] = 0;
-            } else if (dx*dx + dy*dy < heigth*heigth / 16) {
-                row[j * 3]     = 0;
-                row[j * 3 + 1] = 255;
-                row[j * 3 + 2] = 255;
-            } else if (dx*dx + dy*dy < heigth*heigth / 6) {
-                row[j * 3]     = (i + width - j) * 10 % 255;
-                row[j * 3 + 1] = 255;
-                row[j * 3 + 2] = (i + j) * 10 % 255;
-            } else {
-                row[j * 3]     = 255;
-                row[j * 3 + 1] = (i + j) * 5 % 255;
-                row[j * 3 + 2] = 255;
+            for (int k = 0; k < 3; k++) {
+                float value = pixels[i * width + j].v[k];
+                row[3 * j + k] = (png_byte)(fminf(fmaxf(256 * value, 0), 255));
             }
         }
         rows[i] = row;
@@ -80,6 +58,12 @@ bool writePNGFile(const char* filename, Color* pixels, int width, int heigth) {
     png_destroy_write_struct(&png, &info);
     return true;
 }
+
+#define WIDTH 500
+#define HEIGHT 500
+
+#define HVIEW 1
+#define VVIEW 1
 
 int main(int argc, char** argv) {
     if (argc != 3) {
@@ -100,11 +84,14 @@ int main(int argc, char** argv) {
             fclose(obj_file);
             Scene scene = loadFromObj(data);
             free(data);
-
-            freeScene(scene); 
-            if (!writePNGFile(argv[2], NULL, 500, 500)) {
+            Renderer renderer = createRenderer(WIDTH, HEIGHT, HVIEW, VVIEW);
+            clearBuffer(renderer);
+            renderScene(renderer, scene);
+            if (!writePNGFile(argv[2], renderer.buffer, WIDTH, HEIGHT)) {
                 fprintf(stderr, "failed to write '%s': %s\n", argv[2], strerror(errno));
             }
+            freeRenderer(renderer);
+            freeScene(scene); 
             return EXIT_SUCCESS;
         }
     }
