@@ -13,7 +13,11 @@ Vec3 scaleVec3(Vec3 v, float s) {
 }
 
 Vec3 addVec3(Vec3 u, Vec3 v) {
-    return createVec3(u.x * v.x, u.y * v.y, u.z * v.z);
+    return createVec3(u.x + v.x, u.y + v.y, u.z + v.z);
+}
+
+Vec3 subVec3(Vec3 u, Vec3 v) {
+    return createVec3(u.x - v.x, u.y - v.y, u.z - v.z);
 }
 
 float dotVec3(Vec3 u, Vec3 v) {

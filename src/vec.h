@@ -18,6 +18,8 @@ Vec3 scaleVec3(Vec3 v, float s);
 
 Vec3 addVec3(Vec3 u, Vec3 v);
 
+Vec3 subVec3(Vec3 u, Vec3 v);
+
 float dotVec3(Vec3 u, Vec3 v);
 
 Vec3 crossVec3(Vec3 u, Vec3 v);
