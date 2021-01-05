@@ -115,12 +115,14 @@ Scene loadFromObj(const char* obj_content) {
                             face_verts[1] = face_verts[2];
                             face_norms[1] = face_norms[2];
                             triangle_id++;
+                            objects[object_id - 1].mesh.triangle_count++;
                         }
                     }
                 }
             } else if (obj_content[offset] == 'o' && obj_content[offset + 1] == ' ') {
-                objects[object_id].mesh.vertex_indices = vertex_indices + triangle_id * 3;
-                objects[object_id].mesh.normal_indices = normal_indices + triangle_id * 3;
+                objects[object_id].mesh.vertex_indices = vertex_indices + triangle_id;
+                objects[object_id].mesh.normal_indices = normal_indices + triangle_id;
+                objects[object_id].mesh.triangle_count = 0;
                 object_id++;
             }
         }
