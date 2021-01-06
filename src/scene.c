@@ -9,10 +9,10 @@ void freeMesh(Mesh mesh) {
 
 MaterialProperties createDefaultMaterial() {
     MaterialProperties ret = {
-        .emission_color = createVec3(0.0, 0.0, 0.0),
+        .emission_color = createVec3(0, 0, 0),
         .diffuse_color = createVec3(0.5, 0.5, 0.5),
         .specular_color = createVec3(0.2, 0.2, 0.2),
-        .transmition_color = createVec3(0.0, 0.0, 0.0),
+        .transmition_color = createVec3(0, 0, 0),
         .specular_sharpness = 1,
         .reflective_index = 0,
     };
@@ -123,6 +123,7 @@ Scene loadFromObj(const char* obj_content) {
                 objects[object_id].mesh.vertex_indices = vertex_indices + triangle_id;
                 objects[object_id].mesh.normal_indices = normal_indices + triangle_id;
                 objects[object_id].mesh.triangle_count = 0;
+                objects[object_id].material = createDefaultMaterial();
                 object_id++;
             }
         }

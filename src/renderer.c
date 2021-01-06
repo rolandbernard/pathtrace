@@ -17,6 +17,8 @@ Renderer createRenderer(int width, int height, float hview, float vview) {
         .direction = createVec3(0, 0, -1),
         .up = createVec3(0, 1, 0),
         .void_color = createVec3(0, 0, 0),
+        .specular_samples = 5,
+        .diffuse_samples = 50,
     };
     ret.buffer = (Color*)malloc(sizeof(Color) * width * height);
     return ret;
@@ -81,6 +83,7 @@ static Color computeRayColor(Vec3 start, Vec3 direction, Scene* scene, Renderer*
             Vec3 norm2 = scene->normals[mesh.normal_indices[min_t][2]];
             Vec3 normal = addVec3(scaleVec3(norm0, 1 - min_u - min_v), addVec3(scaleVec3(norm1, min_u), scaleVec3(norm2, min_v)));
             MaterialProperties material = scene->objects[min_o].material;
+            
             Color c = material.emission_color;
             return normal;
         }

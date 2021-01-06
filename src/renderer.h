@@ -14,6 +14,8 @@ typedef struct {
     Vec3 direction;
     Vec3 up;
     Vec3 void_color;
+    int specular_samples;
+    int diffuse_samples;
 } Renderer;
 
 Renderer createRenderer(int width, int height, float hview, float vview);
