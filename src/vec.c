@@ -26,9 +26,9 @@ float dotVec3(Vec3 u, Vec3 v) {
 
 Vec3 crossVec3(Vec3 u, Vec3 v) {
     return createVec3(
-        (u.y * v.z) + (u.z * v.y),
-        (u.z * v.x) + (u.x * v.z),
-        (u.x * v.y) + (u.y * v.x)
+        (u.y * v.z) - (u.z * v.y),
+        (u.z * v.x) - (u.x * v.z),
+        (u.x * v.y) - (u.y * v.x)
     );
 }
 
