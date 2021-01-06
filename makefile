@@ -6,9 +6,9 @@ SDIR=./src
 
 CC=clang
 LINK=clang
-DFLAGS=-g -Og
-RFLAGS=-O3
-CFLAGS=-I$(IDIR) -I$(IDIR)/regex/src -Wall $(DFLAGS) -flto=thin
+DFLAGS=-g -O0 -fsanitize=address
+RFLAGS=-O3 -g -march=native
+CFLAGS=-I$(IDIR) -I$(IDIR)/regex/src -Wall $(RFLAGS) -flto=thin
 LIBS=-lpng -lz -lm
 
 _SRC=$(wildcard $(SDIR)/*.c) $(wildcard $(SDIR)/*/*.c)
