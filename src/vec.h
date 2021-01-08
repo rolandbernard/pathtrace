@@ -20,6 +20,8 @@ Vec3 addVec3(Vec3 u, Vec3 v);
 
 Vec3 subVec3(Vec3 u, Vec3 v);
 
+Vec3 mulVec3(Vec3 u, Vec3 v);
+
 float dotVec3(Vec3 u, Vec3 v);
 
 Vec3 crossVec3(Vec3 u, Vec3 v);
@@ -27,6 +29,10 @@ Vec3 crossVec3(Vec3 u, Vec3 v);
 float magnitudeVec3(Vec3 v);
 
 Vec3 normalizeVec3(Vec3 v);
+
+Vec3 minVec3(Vec3 u, Vec3 v);
+
+Vec3 maxVec3(Vec3 u, Vec3 v);
 
 typedef struct {
     float v[3][3];

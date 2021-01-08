@@ -20,6 +20,10 @@ Vec3 subVec3(Vec3 u, Vec3 v) {
     return createVec3(u.x - v.x, u.y - v.y, u.z - v.z);
 }
 
+Vec3 mulVec3(Vec3 u, Vec3 v) {
+    return createVec3(u.x * v.x, u.y * v.y, u.z * v.z);
+}
+
 float dotVec3(Vec3 u, Vec3 v) {
     return (u.x * v.x) + (u.y * v.y) + (u.z * v.z);
 }
@@ -42,6 +46,22 @@ float magnitudeVec3(Vec3 v) {
 
 Vec3 normalizeVec3(Vec3 v) {
     return scaleVec3(v, 1 / magnitudeVec3(v));
+}
+
+Vec3 minVec3(Vec3 u, Vec3 v) {
+    return createVec3(
+        fmin(u.x, v.x),
+        fmin(u.y, v.y),
+        fmin(u.z, v.z)
+    );
+}
+
+Vec3 maxVec3(Vec3 u, Vec3 v) {
+    return createVec3(
+        fmax(u.x, v.x),
+        fmax(u.y, v.y),
+        fmax(u.z, v.z)
+    );
 }
 
 Mat3x3 createNullMat3x3() {
