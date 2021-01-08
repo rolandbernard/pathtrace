@@ -18,14 +18,14 @@ typedef struct {
     int diffuse_samples;
 } Renderer;
 
-Renderer createRenderer(int width, int height, float hview, float vview);
+void initRenderer(Renderer* renderer, int width, int height, float hview, float vview);
 
-void freeRenderer(Renderer renderer);
+void freeRenderer(Renderer* renderer);
 
-void renderScene(Renderer renderer, Scene scene);
+void renderScene(Renderer* renderer, Scene scene);
 
-void scaleBuffer(Renderer renderer, float scale);
+void scaleBuffer(Renderer* renderer, float scale);
 
-void clearBuffer(Renderer renderer);
+void clearBuffer(Renderer* renderer);
 
 #endif

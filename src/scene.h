@@ -1,15 +1,10 @@
 #ifndef _MESH_H_
 #define _MESH_H_
 
+#include <stdbool.h>
+
 #include "vec.h"
-
-typedef struct {
-    int (*vertex_indices)[3];
-    int (*normal_indices)[3];
-    int triangle_count;
-} Mesh;
-
-void freeMesh(Mesh mesh);
+#include "bvh.h"
 
 typedef struct {
     Color emission_color;
@@ -23,23 +18,23 @@ typedef struct {
 MaterialProperties createDefaultMaterial();
 
 typedef struct {
-    Mesh mesh;
+    int starting_triangle;
     MaterialProperties material;
 } Object;
-
-void freeObject(Object obj);
 
 typedef struct {
     Vec3* vertecies;
     Vec3* normals;
     int (*vertex_indices)[3];
     int (*normal_indices)[3];
+    int triangle_count;
     Object* objects;
     int object_count;
+    BvhNode* bvh;
 } Scene;
 
-void freeScene(Scene scene);
+void freeScene(Scene* scene);
 
-Scene loadFromObj(const char* obj_content);
+void loadFromObj(Scene* scene, const char* obj_content);
 
 #endif

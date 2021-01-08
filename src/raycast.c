@@ -82,16 +82,18 @@ int main(int argc, char** argv) {
             fread(data, 1, size, obj_file);
             data[size] = 0;
             fclose(obj_file);
-            Scene scene = loadFromObj(data);
+            Scene scene;
+            loadFromObj(&scene, data);
             free(data);
-            Renderer renderer = createRenderer(WIDTH, HEIGHT, HVIEW, VVIEW);
-            clearBuffer(renderer);
-            renderScene(renderer, scene);
+            Renderer renderer;
+            initRenderer(&renderer, WIDTH, HEIGHT, HVIEW, VVIEW);
+            clearBuffer(&renderer);
+            renderScene(&renderer, scene);
             if (!writePNGFile(argv[2], renderer.buffer, WIDTH, HEIGHT)) {
                 fprintf(stderr, "failed to write '%s': %s\n", argv[2], strerror(errno));
             }
-            freeRenderer(renderer);
-            freeScene(scene); 
+            freeRenderer(&renderer);
+            freeScene(&scene); 
             return EXIT_SUCCESS;
         }
     }

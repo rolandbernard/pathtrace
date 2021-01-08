@@ -4,9 +4,6 @@
 
 #include "scene.h"
 
-void freeMesh(Mesh mesh) {
-}
-
 MaterialProperties createDefaultMaterial() {
     MaterialProperties ret = {
         .emission_color = createVec3(0, 0, 0),
@@ -19,28 +16,22 @@ MaterialProperties createDefaultMaterial() {
     return ret;
 }
 
-void freeObject(Object obj) {
-    freeMesh(obj.mesh);
+void freeScene(Scene* scene) {
+    free(scene->vertecies);
+    free(scene->normals);
+    free(scene->vertex_indices);
+    free(scene->normal_indices);
+    free(scene->objects);
+    freeBvh(scene->bvh);
 }
 
-void freeScene(Scene scene) {
-    free(scene.vertecies);
-    free(scene.normals);
-    free(scene.vertex_indices);
-    free(scene.normal_indices);
-    for (int i = 0; i < scene.object_count; i++) {
-        freeObject(scene.objects[i]);
-    }
-    free(scene.objects);
-}
-
-Scene loadFromObj(const char* obj_content) {
+void loadFromObj(Scene* scene, const char* obj_content) {
     int vertex_count = 0;
     int normal_count = 0;
     int triangle_count = 0;
     int object_count = 0;
     int offset = 0;
-    // Count the number of vertecies, normals and triangles ()
+    // Count the number of vertecies, normals and triangles
     while (obj_content[offset] != 0) {
         if (obj_content[offset] != '#') {
             if (obj_content[offset] == 'v') {
@@ -115,15 +106,12 @@ Scene loadFromObj(const char* obj_content) {
                             face_verts[1] = face_verts[2];
                             face_norms[1] = face_norms[2];
                             triangle_id++;
-                            objects[object_id - 1].mesh.triangle_count++;
                         }
                     }
                 }
             } else if (obj_content[offset] == 'o' && obj_content[offset + 1] == ' ') {
-                objects[object_id].mesh.vertex_indices = vertex_indices + triangle_id;
-                objects[object_id].mesh.normal_indices = normal_indices + triangle_id;
-                objects[object_id].mesh.triangle_count = 0;
                 objects[object_id].material = createDefaultMaterial();
+                objects[object_id].starting_triangle = triangle_id;
                 object_id++;
             }
         }
@@ -134,13 +122,13 @@ Scene loadFromObj(const char* obj_content) {
             offset++;
         }
     }
-    Scene ret = {
-        .vertecies = vertecies,
-        .normals = normals,
-        .vertex_indices = vertex_indices,
-        .normal_indices = normal_indices,
-        .objects = objects,
-        .object_count = object_count,
-    };
-    return ret;
+    scene->vertecies = vertecies;
+    scene->normals = normals;
+    scene->vertex_indices = vertex_indices;
+    scene->normal_indices = normal_indices;
+    scene->triangle_count = triangle_count;
+    scene->objects = objects;
+    scene->object_count = object_count;
+    scene->bvh = buildBvh(vertex_indices, vertecies, triangle_count);
 }
+
