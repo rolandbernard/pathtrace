@@ -8,13 +8,13 @@
 
 MaterialProperties createDefaultMaterial() {
     MaterialProperties ret = {
-        .emission_color = createVec3(0, 0, 0),
-        .diffuse_color = createVec3(0.5, 0.5, 0.5),
-        .specular_color = createVec3(0.2, 0.2, 0.2),
-        .transmition_color = createVec3(0, 0, 0),
-        .specular_sharpness = 0,
+        .emission_color = createVec3(0.0, 0.0, 0.0),
+        .diffuse_color = createVec3(0.0, 0.0, 0.0),
+        .specular_color = createVec3(0.0, 0.0, 0.0),
+        .transmition_color = createVec3(1.0, 1.0, 1.0),
+        .specular_sharpness = 1,
         .transmitability = 0.0,
-        .index_of_refraction = 0,
+        .index_of_refraction = 1.5,
     };
     return ret;
 }

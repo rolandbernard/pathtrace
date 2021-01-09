@@ -43,7 +43,7 @@ bool writePNGFile(const char* filename, Color* pixels, int width, int heigth) {
         for (int j = 0; j < width; j++) {
             for (int k = 0; k < 3; k++) {
                 float value = pixels[i * width + j].v[k];
-                row[3 * j + k] = (png_byte)(fminf(fmaxf(256 * value, 0), 255));
+                row[3 * j + k] = (png_byte)(fminf(fmaxf(256 * sqrtf(value), 0), 255));
             }
         }
         rows[i] = row;
@@ -60,11 +60,11 @@ bool writePNGFile(const char* filename, Color* pixels, int width, int heigth) {
     return true;
 }
 
-#define WIDTH 250
-#define HEIGHT 250
+#define WIDTH 125//0
+#define HEIGHT 125//0
 
-#define HVIEW 1
-#define VVIEW 1
+#define HVIEW 0.5
+#define VVIEW 0.5
 
 int main(int argc, char** argv) {
     if (argc != 3) {

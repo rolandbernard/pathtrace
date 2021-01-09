@@ -18,8 +18,10 @@ void initRenderer(Renderer* renderer, int width, int height, float hview, float 
     renderer->direction = createVec3(0, 0, -1);
     renderer->up = createVec3(0, 1, 0);
     renderer->void_color = createVec3(0, 0, 0);
-    renderer->specular_samples = 5;
-    renderer->diffuse_samples = 10;
+    renderer->specular_samples = 1;
+    renderer->diffuse_samples = 1;
+    renderer->transmition_samples = 1;
+    renderer->pixel_samples = 128;
     renderer->depth = 100;
     renderer->specular_depth_cost = 20;
     renderer->diffuse_depth_cost = 30;
@@ -32,8 +34,10 @@ void freeRenderer(Renderer* renderer) {
     free(renderer->buffer);
 }
 
+#include <assert.h>
+
 static Color computeRayColor(Ray* ray, Scene* scene, Renderer* renderer, int depth) {
-    if (depth == 0) {
+    if (depth <= 0) {
         return renderer->void_color;
     } else {
         Intersection intersection = {
@@ -60,7 +64,9 @@ static Color computeRayColor(Ray* ray, Scene* scene, Renderer* renderer, int dep
                     scaleVec3(norm2, intersection.v)
                 )
             );
+            bool outside = true;
             if (dotVec3(normal, ray->direction) > 0) {
+                outside = false;
                 normal = scaleVec3(normal, -1);
             }
             int object_id = scene->object_ids[intersection.triangle_id];
@@ -69,8 +75,9 @@ static Color computeRayColor(Ray* ray, Scene* scene, Renderer* renderer, int dep
             if (depth - renderer->diffuse_depth_cost > 0) {
                 if (!isVec3Null(material->diffuse_color)) {
                     Color diffuse_color = createVec3(0, 0, 0);
+                    // int samples = renderer->diffuse_samples * depth / renderer->depth;
                     for (int s = 0; s < renderer->diffuse_samples; s++) {
-                        Ray new_ray = createRay(vert, randomVec3InDirection(normal));
+                        Ray new_ray = createRay(vert, randomVec3InDirection(normal, 1, 1));
                         Color color = computeRayColor(&new_ray, scene, renderer, depth - renderer->diffuse_depth_cost);
                         diffuse_color = addVec3(diffuse_color, color);
                     }
@@ -78,14 +85,76 @@ static Color computeRayColor(Ray* ray, Scene* scene, Renderer* renderer, int dep
                     diffuse_color = mulVec3(diffuse_color, material->diffuse_color);
                     c = addVec3(c, diffuse_color);
                 }
+                // Vec3 light_dir = normalizeVec3(createVec3(0, 1, 1));
+                // Ray light_ray = createRay(vert, light_dir);
+                // Intersection tmp = { .dist = INFINITY };
+                // if (!testRayBvhIntersection(&light_ray, scene->bvh, &tmp)) {
+                //     c = addVec3(c, scaleVec3(material->diffuse_color, dotVec3(normal, light_dir)));
+                // }
             }
             if (material->specular_sharpness != 0) {
-                if (!isVec3Null(material->specular_color)) {
-                }
-                if (material->transmitability != 0 && !isVec3Null(material->transmition_color)) {
+                if (material->transmitability > 0.0 && !isVec3Null(material->transmition_color)) {
+                    float n1 = ray->refractive_index;
+                    float n2 = outside ? material->index_of_refraction : 1;
+                    float angle = -dotVec3(ray->direction, normal);
+                    float r0 = (n1 - n2) / (n1 + n2);
+                    r0 *= r0;
+                    float refl = r0 + (1 - r0) * powf((1 - cosf(angle)), 5);
+                    if (refl > 0.0) {
+                        if (depth - renderer->specular_depth_cost > 0) {
+                            Vec3 reflection = subVec3(ray->direction, scaleVec3(normal, 2 * dotVec3(ray->direction, normal)));
+                            Color reflection_color = createVec3(0, 0, 0);
+                            for (int s = 0; s < renderer->specular_samples; s++) {
+                                Vec3 direction = randomVec3InDirection(reflection, 1, material->specular_sharpness);
+                                Ray new_ray = createRay(vert, direction);
+                                Color color = computeRayColor(&new_ray, scene, renderer, depth - renderer->specular_depth_cost);
+                                reflection_color = addVec3(reflection_color, color);
+                            }
+                            reflection_color = scaleVec3(reflection_color, refl / renderer->specular_samples);
+                            reflection_color = mulVec3(reflection_color, material->specular_color);
+                            c = addVec3(c, reflection_color);
+                        }
+                    }
+                    if (refl < 1.0) {
+                        if (depth - renderer->transmition_depth_cost > 0) {
+                            Vec3 transmition = addVec3(
+                                scaleVec3(ray->direction, n1 / n2),
+                                scaleVec3(normal, (
+                                    cosf(angle) * n1 / n2
+                                    - sqrtf(1 - sinf(angle) * sinf(angle))
+                                ))
+                            );
+                            Color reflection_color = createVec3(0, 0, 0);
+                            for (int s = 0; s < renderer->transmition_samples; s++) {
+                                Vec3 direction = randomVec3InDirection(transmition, 1, material->specular_sharpness);
+                                Ray new_ray = createRay(vert, direction);
+                                new_ray.refractive_index = n2;
+                                Color color = computeRayColor(&new_ray, scene, renderer, depth - renderer->transmition_depth_cost);
+                                reflection_color = addVec3(reflection_color, color);
+                            }
+                            reflection_color = scaleVec3(reflection_color, (1.0 - refl) * material->transmitability / renderer->transmition_samples);
+                            reflection_color = mulVec3(reflection_color, material->transmition_color);
+                            c = addVec3(c, reflection_color);
+                        }
+                    }
+                } else {
+                    if (depth - renderer->specular_depth_cost > 0) {
+                        if (!isVec3Null(material->specular_color)) {
+                            Color specular_color = createVec3(0, 0, 0);
+                            Vec3 reflection = subVec3(ray->direction, scaleVec3(normal, 2 * dotVec3(ray->direction, normal)));
+                            for (int s = 0; s < renderer->specular_samples; s++) {
+                                Vec3 direction = randomVec3InDirection(reflection, 1, material->specular_sharpness);
+                                Ray new_ray = createRay(vert, direction);
+                                Color color = computeRayColor(&new_ray, scene, renderer, depth - renderer->specular_depth_cost);
+                                specular_color = addVec3(specular_color, color);
+                            }
+                            specular_color = scaleVec3(specular_color, 1.0 / renderer->specular_samples);
+                            specular_color = mulVec3(specular_color, material->specular_color);
+                            c = addVec3(c, specular_color);
+                        }
+                    }
                 }
             }
-            // c = addVec3(c, scaleVec3(material->diffuse_color, -dotVec3(normal, ray->direction)));
             return c;
         } else {
             return renderer->void_color;
@@ -112,10 +181,16 @@ static void* renderThreadFunction(void* udata) {
             float scale_x = (x / (float)data->renderer->width - 0.5) * data->horizontal_scale;
             float scale_y = (y / (float)data->renderer->height - 0.5) * data->vertical_scale;
             Vec3 direction = normalizeVec3(addVec3(data->forward, addVec3(scaleVec3(data->right, scale_x), scaleVec3(data->down, scale_y))));
-            Ray ray = createRay(data->renderer->position, direction);
-            Color color = computeRayColor(&ray, data->scene, data->renderer, data->renderer->depth);
+            Color pixel_color = createVec3(0, 0, 0);
+            for (int s = 0; s < data->renderer->pixel_samples; s++) {
+                Vec3 actual_direction = randomVec3InDirection(direction, 1e-5, 500);
+                Ray ray = createRay(data->renderer->position, actual_direction);
+                Color color = computeRayColor(&ray, data->scene, data->renderer, data->renderer->depth);
+                pixel_color = addVec3(pixel_color, color);
+            }
+            pixel_color = scaleVec3(pixel_color, 1.0 / data->renderer->pixel_samples);
             Color* pixel = data->renderer->buffer + (y * data->renderer->width + x);
-            *pixel = addVec3(*pixel, color);
+            *pixel = addVec3(*pixel, pixel_color);
         }
     }
     return NULL;

@@ -16,6 +16,8 @@ typedef struct {
     Vec3 void_color;
     int specular_samples;
     int diffuse_samples;
+    int transmition_samples;
+    int pixel_samples;
     int depth;
     int specular_depth_cost;
     int diffuse_depth_cost;

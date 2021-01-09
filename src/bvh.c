@@ -1,5 +1,6 @@
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 
 #include "bvh.h"
@@ -101,6 +102,7 @@ static BvhNode* buildBvhAlong(int* ordering, int (*vert_indices)[3], Vec3* verts
             .bound = { createVec3(INFINITY, INFINITY, INFINITY), createVec3(-INFINITY, -INFINITY, -INFINITY) },
         };
         surroundTriangles(&bbox, ordering, vert_indices, verts, start, end);
+        // fprintf(stderr, "%g, %g, %g; %g %g %g\n", bbox.bound[0].x, bbox.bound[0].y, bbox.bound[0].z, bbox.bound[1].x, bbox.bound[1].y, bbox.bound[1].z);
         quicksort(ordering, vert_indices, verts, start, end, axis);
         BvhNode* childs[2];
         int next_axis = (axis + 1) % 3;

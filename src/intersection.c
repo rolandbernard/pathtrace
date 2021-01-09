@@ -6,7 +6,7 @@
 
 #include "intersection.h"
 
-#define EPSILON 1e-4
+#define EPSILON 1e-5
 
 bool testRayTriangleIntersection(const Ray* ray, const Vec3 vert[3], Intersection* out) {
     Vec3 edge1 = subVec3(vert[1], vert[0]);
@@ -23,11 +23,9 @@ bool testRayTriangleIntersection(const Ray* ray, const Vec3 vert[3], Intersectio
             if (v >= 0 && u + v <= 1.0) {
                 float t = f * dotVec3(edge2, q);
                 if (t > EPSILON && t < out->dist) {
-                    if (out != NULL) {
-                        out->dist = t;
-                        out->u = u;
-                        out->v = v;
-                    }
+                    out->dist = t;
+                    out->u = u;
+                    out->v = v;
                     return true;
                 }
             }
@@ -96,8 +94,14 @@ Ray createRay(Vec3 start, Vec3 direction) {
     Ray ret = {
         .start = start,
         .direction = direction,
-        .inv_direction = createVec3(1 / direction.x, 1 / direction.y, 1 / direction.z),
+        .inv_direction = createVec3(1.0f / direction.x, 1.0f / direction.y, 1.0f / direction.z),
+        .refractive_index = 1.0,
     };
+    // TODO: not totaly sure why I need this
+    if (direction.x == 0) {
+        direction.x = 0;
+        ret.inv_direction.x = INFINITY;
+    }
     ret.sign[0] = ret.inv_direction.x < 0;
     ret.sign[1] = ret.inv_direction.y < 0;
     ret.sign[2] = ret.inv_direction.z < 0;

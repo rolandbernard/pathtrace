@@ -90,11 +90,11 @@ Vec3 randomVec3() {
 }
 
 // v should be normalized
-Vec3 randomVec3InDirection(Vec3 v) {
+Vec3 randomVec3InDirection(Vec3 v, float off, float pow) {
     float r0 = rand() / (float)RAND_MAX; // two uniformly random values from 0 to 1
     float r1 = rand() / (float)RAND_MAX;
     float O = 2 * PI * r0;
-    float z = r1;
+    float z = 1 - powf(r1, pow) * off;
     Vec3 any_up = normalizeVec3(crossVec3(v, addVec3(v, createVec3(1, 1, 1)))); // any vector othogonal to v
     Vec3 right = crossVec3(v, any_up);
     Vec3 zero_inc = addVec3(scaleVec3(any_up, cosf(O)), scaleVec3(right, sinf(O)));
