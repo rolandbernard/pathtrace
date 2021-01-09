@@ -6,7 +6,6 @@
 
 typedef struct {
     float dist;
-    int object_id;
     int triangle_id;
     float u;
     float v;

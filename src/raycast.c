@@ -83,7 +83,23 @@ int main(int argc, char** argv) {
             data[size] = 0;
             fclose(obj_file);
             Scene scene;
-            loadFromObj(&scene, data);
+            char* mtl_data = NULL;
+            int path_len = strlen(argv[1]);
+            argv[1][path_len - 3] = 'm';
+            argv[1][path_len - 2] = 't';
+            argv[1][path_len - 1] = 'l';
+            FILE* mtl_file = fopen(argv[1], "r");
+            if (mtl_file != NULL) {
+                fseek(mtl_file, 0, SEEK_END);
+                int size = ftell(mtl_file);
+                fseek(mtl_file, 0, SEEK_SET);
+                mtl_data = malloc(size + 1);
+                fread(mtl_data, 1, size, mtl_file);
+                mtl_data[size] = 0;
+                fclose(mtl_file);
+            }
+            loadFromObj(&scene, data, mtl_data);
+            free(mtl_data);
             free(data);
             Renderer renderer;
             initRenderer(&renderer, WIDTH, HEIGHT, HVIEW, VVIEW);

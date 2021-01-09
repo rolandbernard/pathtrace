@@ -37,6 +37,13 @@ static Color computeRayColor(Ray* ray, Scene* scene, Renderer* renderer, int dep
             Vec3 vert0 = scene->vertecies[scene->vertex_indices[intersection.triangle_id][0]];
             Vec3 vert1 = scene->vertecies[scene->vertex_indices[intersection.triangle_id][1]];
             Vec3 vert2 = scene->vertecies[scene->vertex_indices[intersection.triangle_id][2]];
+            Vec3 vert = addVec3(
+                scaleVec3(vert0, 1 - intersection.u - intersection.v),
+                addVec3(
+                    scaleVec3(vert1, intersection.u),
+                    scaleVec3(vert2, intersection.v)
+                )
+            );
             Vec3 norm0 = scene->normals[scene->normal_indices[intersection.triangle_id][0]];
             Vec3 norm1 = scene->normals[scene->normal_indices[intersection.triangle_id][1]];
             Vec3 norm2 = scene->normals[scene->normal_indices[intersection.triangle_id][2]];
@@ -47,9 +54,11 @@ static Color computeRayColor(Ray* ray, Scene* scene, Renderer* renderer, int dep
                     scaleVec3(norm2, intersection.v)
                 )
             );
-            // MaterialProperties material = scene->objects[min_o].material;
-            // Color c = material.emission_color;
-            return scaleVec3(addVec3(normal, createVec3(1, 1, 1)), 0.5);
+            int object_id = scene->object_ids[intersection.triangle_id];
+            MaterialProperties material = scene->objects[object_id].material;
+            Color c = material.diffuse_color;
+            // return mulVec3(c, scaleVec3(addVec3(normal, createVec3(1, 1, 1)), 0.5));
+            return scaleVec3(c, -dotVec3(ray->direction, normal));
         } else {
             return renderer->void_color;
         }

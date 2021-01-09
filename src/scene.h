@@ -37,6 +37,6 @@ typedef struct {
 
 void freeScene(Scene* scene);
 
-void loadFromObj(Scene* scene, const char* obj_content);
+void loadFromObj(Scene* scene, const char* obj_content, const char* mtl_content);
 
 #endif
