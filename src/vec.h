@@ -1,6 +1,8 @@
 #ifndef _VEC_H_
 #define _VEC_H_
 
+#include <stdbool.h>
+
 typedef union {
     struct {
         float x;
@@ -33,6 +35,13 @@ Vec3 normalizeVec3(Vec3 v);
 Vec3 minVec3(Vec3 u, Vec3 v);
 
 Vec3 maxVec3(Vec3 u, Vec3 v);
+
+bool isVec3Null(Vec3 u);
+
+Vec3 randomVec3();
+
+// v should be normalized
+Vec3 randomVec3InDirection(Vec3 v);
 
 typedef struct {
     float v[3][3];
