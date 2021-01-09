@@ -20,10 +20,10 @@ typedef struct {
 
 Ray createRay(Vec3 start, Vec3 direction);
 
-bool testRayTriangleIntersection(Ray* ray, Vec3 vert[3], Intersection* out);
+bool testRayTriangleIntersection(const Ray* ray, const Vec3 vert[3], Intersection* out);
 
-bool testRayBoundingBoxIntersection(Ray* ray, BoundingBox* bounds, float t0, float t1);
+bool testRayBoundingBoxIntersection(const Ray* ray, const BoundingBox* bounds, float t0, float t1);
 
-bool testRayBvhIntersection(Ray* ray, BvhNode* bvh, Intersection* out);
+bool testRayBvhIntersection(const Ray* ray, const BvhNode* bvh, Intersection* out);
 
 #endif

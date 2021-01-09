@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 
+#define PI 3.14159265358979323846
+
 typedef union {
     struct {
         float x;
@@ -40,7 +42,8 @@ bool isVec3Null(Vec3 u);
 
 Vec3 randomVec3();
 
-// v should be normalized
+Vec3 fromInclineAndAzimuthal(Vec3 up, Vec3 zero, float incline, float azimuthal);
+
 Vec3 randomVec3InDirection(Vec3 v);
 
 typedef struct {

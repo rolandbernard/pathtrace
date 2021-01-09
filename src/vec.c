@@ -69,10 +69,8 @@ bool isVec3Null(Vec3 u) {
     return u.x == 0 && u.y == 0 && u.z == 0;
 }
 
-#define PI 3.14159265358979323846
-
 // up and zero should be orthogonal and normalized
-static Vec3 fromInclineAndAzimuthal(Vec3 up, Vec3 zero, float incline, float azimuthal) {
+Vec3 fromInclineAndAzimuthal(Vec3 up, Vec3 zero, float incline, float azimuthal) {
     Vec3 right = crossVec3(zero, up);
     Vec3 zero_inc = addVec3(scaleVec3(zero, cosf(azimuthal)), scaleVec3(right, sinf(azimuthal)));
     Vec3 ret = addVec3(scaleVec3(zero_inc, cosf(incline)), scaleVec3(up, sinf(incline)));
@@ -91,13 +89,17 @@ Vec3 randomVec3() {
     );
 }
 
+// v should be normalized
 Vec3 randomVec3InDirection(Vec3 v) {
     float r0 = rand() / (float)RAND_MAX; // two uniformly random values from 0 to 1
     float r1 = rand() / (float)RAND_MAX;
-    float inc = acosf(1 - 2 * r0) - PI / 2;
-    float azi = 2 * PI * r1;
+    float O = 2 * PI * r0;
+    float z = r1;
     Vec3 any_up = normalizeVec3(crossVec3(v, addVec3(v, createVec3(1, 1, 1)))); // any vector othogonal to v
-    return fromInclineAndAzimuthal(any_up, v, inc, azi);
+    Vec3 right = crossVec3(v, any_up);
+    Vec3 zero_inc = addVec3(scaleVec3(any_up, cosf(O)), scaleVec3(right, sinf(O)));
+    Vec3 ret = addVec3(scaleVec3(zero_inc, sqrtf(1 - z*z)), scaleVec3(v, z));
+    return ret;
 }
 
 Mat3x3 createNullMat3x3() {

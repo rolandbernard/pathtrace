@@ -6,12 +6,14 @@
 
 #include "intersection.h"
 
-bool testRayTriangleIntersection(Ray* ray, Vec3 vert[3], Intersection* out) {
+#define EPSILON 1e-4
+
+bool testRayTriangleIntersection(const Ray* ray, const Vec3 vert[3], Intersection* out) {
     Vec3 edge1 = subVec3(vert[1], vert[0]);
     Vec3 edge2 = subVec3(vert[2], vert[0]);
     Vec3 h = crossVec3(ray->direction, edge2);
     float a = dotVec3(edge1, h);
-    if (a < -FLT_EPSILON || a > FLT_EPSILON) {
+    if (a < -EPSILON || a > EPSILON) {
         float f = 1.0 / a;
         Vec3 s = subVec3(ray->start, vert[0]);
         float u = f * dotVec3(s, h);
@@ -20,7 +22,7 @@ bool testRayTriangleIntersection(Ray* ray, Vec3 vert[3], Intersection* out) {
             float v = f * dotVec3(ray->direction, q);
             if (v >= 0 && u + v <= 1.0) {
                 float t = f * dotVec3(edge2, q);
-                if (t > FLT_EPSILON && t < out->dist) {
+                if (t > EPSILON && t < out->dist) {
                     if (out != NULL) {
                         out->dist = t;
                         out->u = u;
@@ -34,7 +36,7 @@ bool testRayTriangleIntersection(Ray* ray, Vec3 vert[3], Intersection* out) {
     return false;
 }
 
-bool testRayBoundingBoxIntersection(Ray* ray, BoundingBox* bb, float t0, float t1) {
+bool testRayBoundingBoxIntersection(const Ray* ray, const BoundingBox* bb, float t0, float t1) {
     float tmin, tmax, tymin, tymax, tzmin, tzmax;
     tmin = (bb->bound[ray->sign[0]].x - ray->start.x) * ray->inv_direction.x;
     tmax = (bb->bound[1 - ray->sign[0]].x - ray->start.x) * ray->inv_direction.x;
@@ -63,11 +65,11 @@ bool testRayBoundingBoxIntersection(Ray* ray, BoundingBox* bb, float t0, float t
     return ((tmin < t1) && (tmax > t0));
 }
 
-bool testRayBvhIntersection(Ray* ray, BvhNode* bvh, Intersection* out) {
+bool testRayBvhIntersection(const Ray* ray, const BvhNode* bvh, Intersection* out) {
     switch (bvh->kind) {
     case BVH_NODE_INTERNAL: {
         BvhNodeInternal* inter = (BvhNodeInternal*)bvh;
-        if (testRayBoundingBoxIntersection(ray, &inter->bounds, FLT_EPSILON, out->dist)) {
+        if (testRayBoundingBoxIntersection(ray, &inter->bounds, EPSILON, out->dist)) {
             bool intersec0 = testRayBvhIntersection(ray, inter->children[ray->sign[inter->split_axis]], out);
             bool intersec1 = testRayBvhIntersection(ray, inter->children[1 - ray->sign[inter->split_axis]], out);
             return intersec0 || intersec1;
@@ -85,9 +87,9 @@ bool testRayBvhIntersection(Ray* ray, BvhNode* bvh, Intersection* out) {
         }
     } break;
     default:
+        return false;
         break;
     }
-    return false;
 }
 
 Ray createRay(Vec3 start, Vec3 direction) {

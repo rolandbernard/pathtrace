@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <png.h>
+#include <time.h>
 
 #include "scene.h"
 #include "renderer.h"
@@ -59,8 +60,8 @@ bool writePNGFile(const char* filename, Color* pixels, int width, int heigth) {
     return true;
 }
 
-#define WIDTH 125
-#define HEIGHT 125
+#define WIDTH 250
+#define HEIGHT 250
 
 #define HVIEW 1
 #define VVIEW 1
@@ -70,6 +71,7 @@ int main(int argc, char** argv) {
         fprintf(stderr, "Usage: %s OBJ-FILE OUT-FILE\n", argv[0]);
         return EXIT_FAILURE;
     } else {
+        srand(time(NULL));
         FILE* obj_file = fopen(argv[1], "r");
         if (obj_file == NULL) {
             fprintf(stderr, "failed to open '%s': %s\n", argv[1], strerror(errno));
@@ -104,9 +106,13 @@ int main(int argc, char** argv) {
             Renderer renderer;
             initRenderer(&renderer, WIDTH, HEIGHT, HVIEW, VVIEW);
             clearBuffer(&renderer);
-            renderScene(&renderer, scene);
-            if (!writePNGFile(argv[2], renderer.buffer, WIDTH, HEIGHT)) {
-                fprintf(stderr, "failed to write '%s': %s\n", argv[2], strerror(errno));
+            for (int i = 0; i < 100; i++) {
+                renderScene(&renderer, &scene);
+                scaleBuffer(&renderer, 1.0 / (i + 1));
+                if (!writePNGFile(argv[2], renderer.buffer, WIDTH, HEIGHT)) {
+                    fprintf(stderr, "failed to write '%s': %s\n", argv[2], strerror(errno));
+                }
+                scaleBuffer(&renderer, (i + 1));
             }
             freeRenderer(&renderer);
             freeScene(&scene); 

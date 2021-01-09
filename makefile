@@ -9,7 +9,7 @@ LINK=clang
 DFLAGS=-g -O0 -fsanitize=address
 RFLAGS=-O3 -g -march=native -flto=thin
 CFLAGS=-I$(IDIR) -I$(IDIR)/regex/src -Wall $(RFLAGS)
-LIBS=-lpng -lz -lm
+LIBS=-lpng -lz -lm -lpthread
 
 _SRC=$(wildcard $(SDIR)/*.c) $(wildcard $(SDIR)/*/*.c)
 OBJ=$(patsubst $(SDIR)/%.c,$(ODIR)/%.o,$(_SRC))

@@ -16,13 +16,18 @@ typedef struct {
     Vec3 void_color;
     int specular_samples;
     int diffuse_samples;
+    int depth;
+    int specular_depth_cost;
+    int diffuse_depth_cost;
+    int transmition_depth_cost;
+    int threads;
 } Renderer;
 
 void initRenderer(Renderer* renderer, int width, int height, float hview, float vview);
 
 void freeRenderer(Renderer* renderer);
 
-void renderScene(Renderer* renderer, Scene scene);
+void renderScene(Renderer* renderer, Scene* scene);
 
 void scaleBuffer(Renderer* renderer, float scale);
 
