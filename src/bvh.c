@@ -66,8 +66,10 @@ static int qsplit(int* ordering, int (*vert_indices)[3], Vec3* verts, int start,
     return insert_beg;
 }
 
-static void quicksort(int* ordering, int (*vert_indices)[3], Vec3* verts, int start, int end, int axis) {
-    if (start + 2 == end) {
+static void quickselect(int* ordering, int (*vert_indices)[3], Vec3* verts, int start, int end, int k, int axis) {
+    if (start > k || end <= k) {
+        return;
+    } else if (start + 2 == end) {
         float center0 = triangleCenter(ordering, vert_indices, verts, start, axis);
         float center1 = triangleCenter(ordering, vert_indices, verts, start + 1, axis);
         if (center1 < center0) {
@@ -85,8 +87,8 @@ static void quicksort(int* ordering, int (*vert_indices)[3], Vec3* verts, int st
         tmp = ordering[start];
         ordering[start] = ordering[mid_point - 1];
         ordering[mid_point - 1] = tmp;
-        quicksort(ordering, vert_indices, verts, start, mid_point - 1, axis);
-        quicksort(ordering, vert_indices, verts, mid_point, end, axis);
+        quickselect(ordering, vert_indices, verts, start, mid_point - 1, k, axis);
+        quickselect(ordering, vert_indices, verts, mid_point, end, k, axis);
     }
 }
 
@@ -102,12 +104,12 @@ static BvhNode* buildBvhAlong(int* ordering, int (*vert_indices)[3], Vec3* verts
             .bound = { createVec3(INFINITY, INFINITY, INFINITY), createVec3(-INFINITY, -INFINITY, -INFINITY) },
         };
         surroundTriangles(&bbox, ordering, vert_indices, verts, start, end);
-        // fprintf(stderr, "%g, %g, %g; %g %g %g\n", bbox.bound[0].x, bbox.bound[0].y, bbox.bound[0].z, bbox.bound[1].x, bbox.bound[1].y, bbox.bound[1].z);
-        quicksort(ordering, vert_indices, verts, start, end, axis);
+        int mid_point = (start + end) / 2;
+        quickselect(ordering, vert_indices, verts, start, end, mid_point, axis);
         BvhNode* childs[2];
         int next_axis = (axis + 1) % 3;
-        childs[0] = buildBvhAlong(ordering, vert_indices, verts, start, (start + end) / 2, next_axis);
-        childs[1] = buildBvhAlong(ordering, vert_indices, verts, (start + end) / 2, end, next_axis);
+        childs[0] = buildBvhAlong(ordering, vert_indices, verts, start, mid_point, next_axis);
+        childs[1] = buildBvhAlong(ordering, vert_indices, verts, mid_point, end, next_axis);
         return createBVHNode(bbox, childs, axis);
     }
 }
