@@ -7,7 +7,7 @@ SDIR=./src
 CC=clang
 LINK=clang
 DFLAGS=-g -O0 -fsanitize=address
-RFLAGS=-O3 -g -march=native -flto=thin
+RFLAGS=-O3 -march=native -flto=thin
 CFLAGS=-I$(IDIR) -I$(IDIR)/regex/src -Wall $(RFLAGS)
 LIBS=-lpng -lz -lm -lpthread
 
