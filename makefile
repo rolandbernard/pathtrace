@@ -16,7 +16,7 @@ OBJ=$(patsubst $(SDIR)/%.c,$(ODIR)/%.o,$(_SRC))
 
 DEPS=$(wildcard $(IDIR)/*.h)
 
-_BIN=raycast
+_BIN=raytrace
 BIN=$(patsubst %,$(BDIR)/%,$(_BIN))
 
 .PHONY: all

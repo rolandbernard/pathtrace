@@ -60,8 +60,8 @@ bool writePNGFile(const char* filename, Color* pixels, int width, int heigth) {
     return true;
 }
 
-#define WIDTH 125//0
-#define HEIGHT 125//0
+#define WIDTH 1250
+#define HEIGHT 1250
 
 #define HVIEW 0.5
 #define VVIEW 0.5

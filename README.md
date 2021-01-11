@@ -1,6 +1,7 @@
-Raycast
-=======
-A simple Ray casting implementation written in C.
+Simple path tracing
+===================
+A simple path tracing implementation written in C.
+You should probably not use it however, because it is insanely slow and noisy.
 
 Example:
 
