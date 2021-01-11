@@ -104,8 +104,13 @@ static BvhNode* buildBvhAlong(int* ordering, int (*vert_indices)[3], Vec3* verts
             .bound = { createVec3(INFINITY, INFINITY, INFINITY), createVec3(-INFINITY, -INFINITY, -INFINITY) },
         };
         surroundTriangles(&bbox, ordering, vert_indices, verts, start, end);
-        int mid_point = (start + end) / 2;
-        quickselect(ordering, vert_indices, verts, start, end, mid_point, axis);
+        // fprintf(stderr, "%g %g %g; %g %g %g\n", bbox.bound[0].x, bbox.bound[0].y, bbox.bound[0].z, bbox.bound[1].x, bbox.bound[1].y, bbox.bound[1].z);
+        Vec3 pivot = scaleVec3(addVec3(bbox.bound[0], bbox.bound[1]), 0.5);
+        int mid_point = qsplit(ordering, vert_indices, verts, start, end, pivot.v[axis], axis);
+        if (mid_point == start || mid_point == end) {
+            mid_point = (start + end) / 2;
+            quickselect(ordering, vert_indices, verts, start, end, mid_point, axis);
+        }
         BvhNode* childs[2];
         int next_axis = (axis + 1) % 3;
         childs[0] = buildBvhAlong(ordering, vert_indices, verts, start, mid_point, next_axis);

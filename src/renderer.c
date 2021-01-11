@@ -18,13 +18,13 @@ void initRenderer(Renderer* renderer, int width, int height, float hview, float 
     renderer->direction = createVec3(0, 0, -1);
     renderer->up = createVec3(0, 1, 0);
     renderer->void_color = createVec3(0, 0, 0);
-    renderer->pixel_samples = 128;
+    renderer->pixel_samples = 1;
     renderer->depth = 100;
     renderer->specular_depth_cost = 20;
-    renderer->diffuse_depth_cost = 50;
+    renderer->diffuse_depth_cost = 30;
     renderer->transmition_depth_cost = 10;
     renderer->buffer = (Color*)malloc(sizeof(Color) * width * height);
-    renderer->threads = 32;
+    renderer->threads = 128;
 }
 
 void freeRenderer(Renderer* renderer) {
@@ -79,8 +79,8 @@ static Color computeRayColor(Ray* ray, Scene* scene, Renderer* renderer, int dep
             }
             if (material->specular_sharpness != 0) {
                 if (material->transmitability > 0.0 && !isVec3Null(material->transmition_color)) {
-                    float n1 = ray->refractive_index;
-                    float n2 = outside ? material->index_of_refraction : 1;
+                    float n1 = outside ? 1.0 : material->index_of_refraction;
+                    float n2 = outside ? material->index_of_refraction : 1.0;
                     float angle = -dotVec3(ray->direction, normal);
                     float r0 = (n1 - n2) / (n1 + n2);
                     r0 *= r0;
@@ -106,7 +106,6 @@ static Color computeRayColor(Ray* ray, Scene* scene, Renderer* renderer, int dep
                             );
                             Vec3 direction = randomVec3InDirection(transmition, 1, material->specular_sharpness);
                             Ray new_ray = createRay(vert, direction);
-                            new_ray.refractive_index = n2;
                             Color color = computeRayColor(&new_ray, scene, renderer, depth - renderer->transmition_depth_cost);
                             Color reflection_color = scaleVec3(color, (1.0 - refl) * material->transmitability);
                             reflection_color = mulVec3(reflection_color, material->transmition_color);
@@ -154,7 +153,7 @@ static void* renderThreadFunction(void* udata) {
             Vec3 direction = normalizeVec3(addVec3(data->forward, addVec3(scaleVec3(data->right, scale_x), scaleVec3(data->down, scale_y))));
             Color pixel_color = createVec3(0, 0, 0);
             for (int s = 0; s < data->renderer->pixel_samples; s++) {
-                Vec3 actual_direction = randomVec3InDirection(direction, 1e-5, 500);
+                Vec3 actual_direction = randomVec3InDirection(direction, 1e-5, 100);
                 Ray ray = createRay(data->renderer->position, actual_direction);
                 Color color = computeRayColor(&ray, data->scene, data->renderer, data->renderer->depth);
                 pixel_color = addVec3(pixel_color, color);

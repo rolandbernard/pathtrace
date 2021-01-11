@@ -46,8 +46,6 @@ Vec3 fromInclineAndAzimuthal(Vec3 up, Vec3 zero, float incline, float azimuthal)
 
 Vec3 randomVec3InDirection(Vec3 v, float off, float pow);
 
-// Vec3 randomNormalVec3InDirection(Vec3 v, float );
-
 typedef struct {
     float v[3][3];
 } Mat3x3;

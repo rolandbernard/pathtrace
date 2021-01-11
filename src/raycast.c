@@ -60,8 +60,8 @@ bool writePNGFile(const char* filename, Color* pixels, int width, int heigth) {
     return true;
 }
 
-#define WIDTH 125//0
-#define HEIGHT 125//0
+#define WIDTH 1250
+#define HEIGHT 1250
 
 #define HVIEW 0.5
 #define VVIEW 0.5
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
             Renderer renderer;
             initRenderer(&renderer, WIDTH, HEIGHT, HVIEW, VVIEW);
             clearBuffer(&renderer);
-            for (int i = 0; i < 128; i++) {
+            for (int i = 0; i < 1024; i++) {
                 renderScene(&renderer, &scene);
                 scaleBuffer(&renderer, 1.0 / (i + 1));
                 if (!writePNGFile(argv[2], renderer.buffer, WIDTH, HEIGHT)) {

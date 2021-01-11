@@ -16,7 +16,6 @@ typedef struct {
     Vec3 direction;
     Vec3 inv_direction;
     int sign[3];
-    float refractive_index;
 } Ray;
 
 Ray createRay(Vec3 start, Vec3 direction);

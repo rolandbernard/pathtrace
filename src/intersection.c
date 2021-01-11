@@ -95,7 +95,6 @@ Ray createRay(Vec3 start, Vec3 direction) {
         .start = start,
         .direction = direction,
         .inv_direction = createVec3(1.0f / direction.x, 1.0f / direction.y, 1.0f / direction.z),
-        .refractive_index = 1.0,
     };
     // TODO: not totaly sure why I need this
     if (direction.x == 0) {
