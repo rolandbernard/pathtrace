@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
             Renderer renderer;
             initRenderer(&renderer, WIDTH, HEIGHT, HVIEW, VVIEW);
             clearBuffer(&renderer);
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 128; i++) {
                 renderScene(&renderer, &scene);
                 scaleBuffer(&renderer, 1.0 / (i + 1));
                 if (!writePNGFile(argv[2], renderer.buffer, WIDTH, HEIGHT)) {

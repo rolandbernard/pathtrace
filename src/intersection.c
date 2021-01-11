@@ -102,6 +102,14 @@ Ray createRay(Vec3 start, Vec3 direction) {
         direction.x = 0;
         ret.inv_direction.x = INFINITY;
     }
+    if (direction.y == 0) {
+        direction.y = 0;
+        ret.inv_direction.y = INFINITY;
+    }
+    if (direction.z == 0) {
+        direction.z = 0;
+        ret.inv_direction.z = INFINITY;
+    }
     ret.sign[0] = ret.inv_direction.x < 0;
     ret.sign[1] = ret.inv_direction.y < 0;
     ret.sign[2] = ret.inv_direction.z < 0;
