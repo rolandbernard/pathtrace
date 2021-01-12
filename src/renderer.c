@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <float.h>
-#include <pthread.h>
 
 #include "vec.h"
 #include "renderer.h"
@@ -22,9 +21,8 @@ void initRenderer(Renderer* renderer, int width, int height, float hview, float 
     renderer->depth = 100;
     renderer->specular_depth_cost = 20;
     renderer->diffuse_depth_cost = 30;
-    renderer->transmition_depth_cost = 10;
+    renderer->transmition_depth_cost = 5;
     renderer->buffer = (Color*)malloc(sizeof(Color) * width * height);
-    renderer->threads = 32;
 }
 
 void freeRenderer(Renderer* renderer) {
@@ -125,62 +123,29 @@ static Color computeRadiance(Ray* ray, Scene* scene, Renderer* renderer, int dep
     }
 }
 
-typedef struct {
-    int line_from;
-    int line_to;
-    Vec3 right;
-    Vec3 down;
-    Vec3 forward;
-    float horizontal_scale;
-    float vertical_scale;
-    Renderer* renderer;
-    Scene* scene;
-} RenderFunctionData;
-
-static void* renderThreadFunction(void* udata) {
-    RenderFunctionData* data = (RenderFunctionData*)udata;
-    for (int y = data->line_from; y < data->line_to; y++) {
-        for (int x = 0; x < data->renderer->width; x++) {
-            float scale_x = (x / (float)data->renderer->width - 0.5) * data->horizontal_scale;
-            float scale_y = (y / (float)data->renderer->height - 0.5) * data->vertical_scale;
-            Vec3 direction = normalizeVec3(addVec3(data->forward, addVec3(scaleVec3(data->right, scale_x), scaleVec3(data->down, scale_y))));
-            Color pixel_color = createVec3(0, 0, 0);
-            for (int s = 0; s < data->renderer->pixel_samples; s++) {
-                Vec3 actual_direction = randomVec3InDirection(direction, 1e-5, 100);
-                Ray ray = createRay(data->renderer->position, actual_direction);
-                Color color = computeRadiance(&ray, data->scene, data->renderer, data->renderer->depth);
-                pixel_color = addVec3(pixel_color, color);
-            }
-            pixel_color = scaleVec3(pixel_color, 1.0 / data->renderer->pixel_samples);
-            Color* pixel = data->renderer->buffer + (y * data->renderer->width + x);
-            *pixel = addVec3(*pixel, pixel_color);
-        }
-    }
-    return NULL;
-}
-
 void renderScene(Renderer* renderer, Scene* scene) {
     Vec3 right = normalizeVec3(crossVec3(renderer->direction, renderer->up));
     Vec3 down = normalizeVec3(crossVec3(renderer->direction, right));
     Vec3 forward = normalizeVec3(renderer->direction);
     float horizontal_scale = tanf(renderer->horizontal_view);
     float vertical_scale = tanf(renderer->vertical_view);
-    RenderFunctionData data[renderer->threads];
-    pthread_t threads[renderer->threads];
-    for (int t = 0; t < renderer->threads; t++) {
-        data[t].line_from = renderer->height * t / renderer->threads;
-        data[t].line_to = renderer->height * (t + 1) / renderer->threads;
-        data[t].forward = forward;
-        data[t].down = down;
-        data[t].right = right;
-        data[t].horizontal_scale = horizontal_scale;
-        data[t].vertical_scale = vertical_scale;
-        data[t].renderer = renderer;
-        data[t].scene = scene;
-        pthread_create(threads + t, NULL, renderThreadFunction, (void*)(data + t));
-    }
-    for (int t = 0; t < renderer->threads; t++) {
-        pthread_join(threads[t], NULL);
+#pragma omp parallel for schedule(dynamic, 1)
+    for (int y = 0; y < renderer->height; y++) {
+        for (int x = 0; x < renderer->width; x++) {
+            float scale_x = (x / (float)renderer->width - 0.5) * horizontal_scale;
+            float scale_y = (y / (float)renderer->height - 0.5) * vertical_scale;
+            Vec3 direction = normalizeVec3(addVec3(forward, addVec3(scaleVec3(right, scale_x), scaleVec3(down, scale_y))));
+            Color pixel_color = createVec3(0, 0, 0);
+            for (int s = 0; s < renderer->pixel_samples; s++) {
+                Vec3 actual_direction = randomVec3InDirection(direction, 1e-5, 100);
+                Ray ray = createRay(renderer->position, actual_direction);
+                Color color = computeRadiance(&ray, scene, renderer, renderer->depth);
+                pixel_color = addVec3(pixel_color, color);
+            }
+            pixel_color = scaleVec3(pixel_color, 1.0 / renderer->pixel_samples);
+            Color* pixel = renderer->buffer + (y * renderer->width + x);
+            *pixel = addVec3(*pixel, pixel_color);
+        }
     }
 }
 

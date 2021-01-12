@@ -19,7 +19,6 @@ typedef struct {
     int specular_depth_cost;
     int diffuse_depth_cost;
     int transmition_depth_cost;
-    int threads;
 } Renderer;
 
 void initRenderer(Renderer* renderer, int width, int height, float hview, float vview);
