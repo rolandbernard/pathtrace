@@ -1,7 +1,7 @@
 Simple path tracing
 ===================
 A simple path tracing implementation written in C.
-You should probably not use it however, because it is insanely slow and noisy.
+You should probably not use it because it is insanely slow and noisy.
 
 Example:
 
